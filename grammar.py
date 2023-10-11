@@ -47,8 +47,12 @@ class Pcfg(object):
         Return True if the grammar is a valid PCFG in CNF.
         Otherwise return False. 
         """
-        # TODO, Part 1
-        return False
+        nonterminals = self.lhs_to_rules.keys() # problem spec allows for this assumption
+        for ruleset in self.lhs_to_rules.values():
+            for rule in ruleset:
+                if not all(sym in nonterminals for sym in rule[1]) and not all(sym not in nonterminals for sym in rule[1]):
+                    return False
+        return True
 
 
 if __name__ == "__main__":
