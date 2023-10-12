@@ -56,7 +56,15 @@ class Pcfg(object):
         return True
 
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 if __name__ == "__main__":
     with open(sys.argv[1],'r') as grammar_file:
         grammar = Pcfg(grammar_file)
+        if not grammar.verify_grammar():
+            eprint("** ERR! The grammar in file", sys.argv[1], "is not a valid grammar.")
+        else:
+            print("The grammar is valid. Continuing...")
+            
         
