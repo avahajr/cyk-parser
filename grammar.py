@@ -6,7 +6,7 @@ Daniel Bauer
 
 import sys
 from collections import defaultdict
-from math import fsum
+from math import fsum, isclose
 
 class Pcfg(object): 
     """
@@ -49,8 +49,9 @@ class Pcfg(object):
         """
         nonterminals = self.lhs_to_rules.keys() # problem spec allows for this assumption
         for ruleset in self.lhs_to_rules.values():
+            if not isclose(sum(r[-1] for r in ruleset), 1): return False
             for rule in ruleset:
-                if not all(sym in nonterminals for sym in rule[1]) and not all(sym not in nonterminals for sym in rule[1]):
+                if not (all(sym in nonterminals for sym in rule[1]) or all(sym not in nonterminals for sym in rule[1])) :
                     return False
         return True
 
