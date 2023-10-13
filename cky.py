@@ -176,9 +176,51 @@ class CkyParser(object):
         """
         Parse the input tokens and return a parse table and a probability table.
         """
+        n = len(tokens)
         # TODO, part 3
-        table = None
-        probs = None
+        table = {}
+        probs = {}
+        for i in range(n):
+            table[(i, i + 1)] = {}
+            probs[(i, i + 1)] = {}
+            for rule in self.grammar.rhs_to_rules[(tokens[i],)]:
+                table[(i, i + 1)][rule[0]] = tokens[i]
+                probs[(i, i + 1)][rule[0]] = math.log(rule[-1])
+
+        # CKY loop
+        for l in range(2, n + 1):  # l is the length (# tokens) of the subspan
+            for i in range(n - l + 1):
+                j = i + l
+                if (i, j) not in probs:
+                    probs[(i, j)] = {}
+                if (i, j) not in table:
+                    table[(i, j)] = {}
+                for k in range(i + 1, j):
+                    for left_var in table[(i, k)]:
+                        for right_var in table[(k, j)]:
+                            if (
+                                left_var,
+                                right_var,
+                            ) in self.grammar.rhs_to_rules:  # to avoid KeyError
+                                for rule in self.grammar.rhs_to_rules[
+                                    (left_var, right_var)
+                                ]:
+                                    new_prob = (
+                                        probs[(i, k)][left_var]
+                                        + probs[(k, j)][right_var]
+                                        + math.log(rule[2])
+                                    )
+
+                                    if (
+                                        rule[0] not in probs[(i, j)]
+                                        or new_prob > probs[(i, j)][rule[0]]
+                                    ):
+                                        probs[(i, j)][rule[0]] = new_prob
+                                        table[(i, j)][rule[0]] = (
+                                            (left_var, i, k),
+                                            (right_var, k, j),
+                                        )
+
         return table, probs
 
 
@@ -195,7 +237,7 @@ if __name__ == "__main__":
         grammar = Pcfg(grammar_file)
         parser = CkyParser(grammar)
         toks = ["flights", "from", "miami", "to", "cleveland", "."]
-        # print(parser.is_in_language(toks))
-        # table,probs = parser.parse_with_backpointers(toks)
-        # assert check_table_format(chart)
-        # assert check_probs_format(probs)
+        print(parser.is_in_language(toks))
+        table, probs = parser.parse_with_backpointers(toks)
+        assert check_probs_format(probs)
+        assert check_table_format(table)
