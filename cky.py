@@ -228,8 +228,12 @@ def get_tree(chart, i, j, nt):
     """
     Return the parse-tree rooted in non-terminal nt and covering span i,j.
     """
-    # TODO: Part 4
-    return None
+
+    #  TODO: Part 4
+    # base case: we have found a terminal
+    if i - j == 1:
+        return chart[(i, i + 1)][nt]  # return the terminal
+    return (nt, get_tree(chart, i, j, chart[(i, j)][nt]))
 
 
 if __name__ == "__main__":
