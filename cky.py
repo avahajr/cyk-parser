@@ -231,9 +231,15 @@ def get_tree(chart, i, j, nt):
 
     #  TODO: Part 4
     # base case: we have found a terminal
-    if i - j == 1:
-        return chart[(i, i + 1)][nt]  # return the terminal
-    return (nt, get_tree(chart, i, j, chart[(i, j)][nt]))
+    if abs(i - j) == 1:
+        # print((nt, chart[(i, i + 1)][nt]))
+        return nt, chart[(i, i + 1)][nt]  # return the terminal
+
+    # otherwise, there is  a left and right side to the tree.
+    l_var, li, lj = chart[(i, j)][nt][0]
+    r_var, ri, rj = chart[(i, j)][nt][1]
+    # print(nt, (get_tree(chart, li, lj, l_var), get_tree(chart, ri, rj, r_var)))
+    return nt, get_tree(chart, li, lj, l_var), get_tree(chart, ri, rj, r_var)
 
 
 if __name__ == "__main__":
@@ -245,3 +251,11 @@ if __name__ == "__main__":
         table, probs = parser.parse_with_backpointers(toks)
         assert check_probs_format(probs)
         assert check_table_format(table)
+        print(get_tree(table, 0, len(toks), grammar.startsymbol))
+
+    # with open("test_grammars/she_ate.pcfg", "r") as grammar_file:
+    #     grammar = Pcfg(grammar_file)
+    #     parser = CkyParser(grammar)
+    #     table, probs = parser.parse_with_backpointers("she ate".split())
+
+    #     print(get_tree(table, 0, 2, grammar.startsymbol))
